@@ -90,5 +90,3 @@ jobs:
       with:
         name: lozkho-stereo-linux
         path: dist/lozkho-stereo
-
-```
