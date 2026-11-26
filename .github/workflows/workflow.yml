@@ -1,0 +1,95 @@
+```yaml
+name: Build and Package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v1
+      with:
+        api-level: 30
+        ndk-version: '21.4.7075523'
+
+    - name: Install dependencies
+      run: ./gradlew dependencies
+
+    - name: Build APK
+      run: ./gradlew assembleRelease
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: lozkho-stereo.apk
+        path: app/build/outputs/apk/release/app-release.apk
+
+  build-windows-portable:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Build Windows executable
+      run: |
+        set PATH=%PATH%;C:\Python38\Scripts
+        pyinstaller --onefile your_script.py
+
+    - name: Upload Windows executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: lozkho-stereo.exe
+        path: dist/lozkho-stereo.exe
+
+  build-linux-portable:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Build Linux executable
+      run: |
+        python3 -m PyInstaller --onefile your_script.py
+
+    - name: Upload Linux executable
+      uses: actions/upload-artifact@v2
+      with:
+        name: lozkho-stereo-linux
+        path: dist/lozkho-stereo
+
+```
